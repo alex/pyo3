@@ -52,6 +52,17 @@ pub mod buf_and_str {
         PyMemoryView::from(&bytes)
     }
 
+    #[pyclass(frozen)]
+    struct OwnedData {
+        data: Vec<u8>,
+    }
+
+    #[pyfunction]
+    fn return_owned_memoryview(py: Python<'_>) -> PyResult<Bound<'_, PyMemoryView>> {
+        let obj = pyo3::Py::new(py, OwnedData { data: b"owned buffer data".to_vec() })?;
+        PyMemoryView::from_owned_buffer(py, obj, |d| &d.data)
+    }
+
     #[pyfunction]
     fn map_byte_slice(bytes: &[u8]) -> &[u8] {
         bytes
